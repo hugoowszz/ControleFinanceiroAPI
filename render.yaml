@@ -1,0 +1,42 @@
+services:
+  # ── API Spring Boot ──────────────────────────────────────────────
+  - type: web
+    name: porkito-api
+    runtime: java
+    plan: free
+    buildCommand: "./mvnw clean package -DskipTests"
+    startCommand: "java -Xmx512m -jar target/*.jar"
+    envVars:
+      - key: DATABASE_URL
+        sync: false          # preencher manualmente no dashboard
+      - key: DATABASE_USERNAME
+        sync: false
+      - key: DATABASE_PASSWORD
+        sync: false
+      - key: API_SECURITY_TOKEN_SECRET
+        generateValue: true  # Render gera automaticamente
+      - key: JAVA_OPTS
+        value: "-Xmx512m"
+    healthCheckPath: /actuator/health
+
+  # ── WhatsApp Gateway Node.js ─────────────────────────────────────
+  - type: worker
+    name: porkito-gateway
+    runtime: node
+    plan: starter           # precisa de disco persistente
+    rootDir: whatsapp-gateway
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    disk:
+      name: whatsapp-session
+      mountPath: /opt/render/project/src/whatsapp-gateway/auth_info_baileys
+      sizeGB: 1
+    envVars:
+      - key: API_BASE_URL
+        value: "https://porkito-api.onrender.com"
+      - key: API_EMAIL
+        sync: false
+      - key: API_SENHA
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
