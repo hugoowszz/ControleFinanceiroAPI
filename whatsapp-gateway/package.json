@@ -1,0 +1,19 @@
+{
+  "name": "whatsapp-financeiro-gateway",
+  "version": "1.0.0",
+  "description": "Gateway WhatsApp com Baileys e Google Gemini para captura de gastos",
+  "main": "index.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@whiskeysockets/baileys": "^6.7.9",
+    "axios": "^1.7.9",
+    "dotenv": "^16.4.7",
+    "pino": "^9.6.0",
+    "qrcode-terminal": "^0.12.0"
+  }
+}
