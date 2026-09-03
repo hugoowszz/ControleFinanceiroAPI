@@ -5,6 +5,7 @@ const {
   DisconnectReason,
   fetchLatestBaileysVersion
 } = require('@whiskeysockets/baileys');
+const { useSupabaseAuthState } = require('./supabaseAuthState');
 const qrcode = require('qrcode-terminal');
 const axios = require('axios');
 const pino = require('pino');
@@ -96,7 +97,16 @@ async function enviarParaBackend(mov) {
 async function iniciarWhatsAppGateway() {
   await autenticarNaApiSpringBoot();
 
-  const { state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys');
+  // Em produção (Render): salva sessão no Supabase Storage
+  // Em desenvolvimento (local): salva em ./auth_info_baileys
+  let state, saveCreds;
+  if (process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_KEY) {
+    console.log('☁️  Usando Supabase Storage para persistir sessão...');
+    ({ state, saveCreds } = await useSupabaseAuthState());
+  } else {
+    console.log('💾 Usando disco local para persistir sessão (./auth_info_baileys)...');
+    ({ state, saveCreds } = await useMultiFileAuthState('./auth_info_baileys'));
+  }
   const { version } = await fetchLatestBaileysVersion();
 
   console.log(`🚀 Conectando ao WhatsApp...`);
